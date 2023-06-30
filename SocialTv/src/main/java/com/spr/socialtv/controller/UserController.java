@@ -12,7 +12,7 @@ import java.util.HashMap;
 @Slf4j
 @RestController  // 주소가 아닌 문자열로 그대로 리턴 가능함
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -20,7 +20,7 @@ public class UserController {
     /*
      * 회원 가입
      * */
-    @PostMapping("/user/signup")
+    @PostMapping("/signup")
     @ResponseBody
     public HashMap<String, Object> signup(@RequestBody @Valid SignupRequestDto signupRequestDto){
         HashMap<String, Object> map = new HashMap<String, Object>();
