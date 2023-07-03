@@ -1,6 +1,9 @@
 package com.spr.socialtv.service;
 
 import com.spr.socialtv.dto.SignupRequestDto;
+import com.spr.socialtv.dto.UserDto;
+import com.spr.socialtv.dto.UserProfileDto;
+import com.spr.socialtv.dto.UserProfileRequestDto;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.repository.UserRepository;
@@ -65,6 +68,28 @@ public class UserService {
         return map;
     }
 
+    public UserProfileDto getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("해당 userId를 찾을 수 없습니다. : " + userId));
+        return convertToUserProfileDto(user);
+    }
 
+    private UserProfileDto convertToUserProfileDto(User user) {
+        return new UserProfileDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
 
+    public UserProfileDto updateUserProfile(Long userId, UserProfileRequestDto requestDto) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // 사용자 정보 업데이트
+            user.setUsername(requestDto.getUsername());
+            user.setEmail(requestDto.getEmail());
+            // TODO: 필요한 다른 정보 업데이트 작업 수행
+
+            User updatedUser = userRepository.save(user);
+            return convertToUserProfileDto(updatedUser);
+        }
+        return null;
+    }
 }
