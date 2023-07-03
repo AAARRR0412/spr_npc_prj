@@ -7,6 +7,7 @@ import com.spr.socialtv.dto.CommentResponseDto;
 import com.spr.socialtv.entity.Comment;
 import com.spr.socialtv.entity.Post;
 import com.spr.socialtv.entity.User;
+import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.repository.CommentRepository;
 import com.spr.socialtv.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class CommentService {
         // 선택한 게시글이 있다면 댓글을 등록하고 등록된 댓글 반환하기
         // 댓글 저장
         Comment comment = new Comment();
-        comment.setContent(commentRequestDto.getContent());
+        comment.setContent(commentRequestDto.getComment());
         comment.setUser(user);
         comment.setPost(post);
 
@@ -37,7 +38,7 @@ public class CommentService {
         return CommentResponseDto.builder()
                 .postId(post.getPostId())
                 .commentId(comment.getCommId())
-                .content(comment.getComment())
+                .comment(comment.getComment())
                 .username(user.getUsername())
                 .build();
     }
@@ -49,21 +50,26 @@ public class CommentService {
 
         // 선택한 댓글의 DB 저장 유무를 확인하기
         Comment comment = findComment(commentId);
-
-        if (!user.getUsername().equals(comment.getUser().getUsername())) {
+        // 관리자 기능 추가할것 0703 김태훈
+        /*        if (!user.getUsername().equals(comment.getUser().getUsername())) {
             throw new IllegalArgumentException("작성자만 수정/삭제할 수 있습니다.");
+        }*/
+
+        if (this.checkValidUser(user, comment)) {
+            // 선택한 댓글이 있다면 댓글 수정하고 수정된 댓글 반환하기
+            comment.setContent(commentRequestDto.getComment());
+            commentRepository.save(comment);
+
+            return CommentResponseDto.builder()
+                    .postId(post.getPostId())
+                    .commentId(comment.getCommId())
+                    .username(comment.getUser().getUsername())
+                    .comment(comment.getComment())
+                    .build();
+
+        } else {
+            throw new IllegalArgumentException("작성자, 관리자 만 수정/삭제할 수 있습니다.");
         }
-
-        // 선택한 댓글이 있다면 댓글 수정하고 수정된 댓글 반환하기
-        comment.setContent(commentRequestDto.getContent());
-        commentRepository.save(comment);
-
-        return CommentResponseDto.builder()
-                .postId(post.getPostId())
-                .commentId(comment.getCommId())
-                .username(comment.getUser().getUsername())
-                .content(comment.getComment())
-                .build();
     }
 
     // 댓글 삭제
@@ -96,6 +102,16 @@ public class CommentService {
     private Post findPost(Long postId) {
        return postRepository.findById(postId).orElseThrow(
                 () -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다.")
+        );
+    }
+
+    /**
+     * 유효한 등록자인지 확인
+     */
+    private boolean checkValidUser(User user, Comment comment) {
+        return !(
+                !user.getUsername().equals(comment.getUser().getUsername())
+                        && !user.getRole().equals(UserRoleEnum.ADMIN)
         );
     }
 }

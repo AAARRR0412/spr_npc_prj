@@ -14,8 +14,8 @@ public class UserProfileDto {
     private String email;
     private UserRoleEnum role;
 
-    public UserProfileDto(Long id, String username, String email, UserRoleEnum role) {
-        this.userId = id;
+    public UserProfileDto(Long userId, String username, String email, UserRoleEnum role) {
+        this.userId = userId;
         this.username = username;
         this.email = email;
         this.role = role;

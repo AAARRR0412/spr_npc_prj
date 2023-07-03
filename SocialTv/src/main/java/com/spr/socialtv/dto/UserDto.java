@@ -7,15 +7,15 @@ import lombok.*;
 @Setter
 @Builder
 public class UserDto {
-    private Long id;
+    private Long userId;
     private String username;
     private String email;
     private UserRoleEnum role;
 
 
     public UserDto(){}
-    public UserDto(Long id, String username, String email, UserRoleEnum role) {
-        this.id = id;
+    public UserDto(Long userId, String username, String email, UserRoleEnum role) {
+        this.userId = userId;
         this.username = username;
         this.email = email;
         this.role = role;

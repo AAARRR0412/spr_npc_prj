@@ -10,6 +10,7 @@ import lombok.Setter;
 public class PostDto {
     private Long postId;
     private String title;
-    private String writerName;
-    private String content;
+    private String writerName; //user에 있는 작성자 참고
+    private String comment;
+    private String postPassword;
 }

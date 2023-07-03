@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Table(name = "comment")
+@Table(name = "comments")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Comment extends Timestamped {
