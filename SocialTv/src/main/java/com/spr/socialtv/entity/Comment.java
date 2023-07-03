@@ -44,5 +44,14 @@ public class Comment extends Timestamped {
     public LocalDateTime getCreateDate() {
         return super.getCreateDate();
     }
+    public void setContent(String comment) {
+        this.comment = comment;
+    }
+    public void setPost(Post post) {
+        this.post = post;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
 
