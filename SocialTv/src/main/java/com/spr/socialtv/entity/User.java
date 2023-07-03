@@ -16,18 +16,28 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    // 유저의 아이디값
     @Column(nullable = false, unique = true)
     private String username;
 
+    // 비밀번호
     @Column(nullable = false)
     private String password;
 
+    // 이메일
     @Column(nullable = false, unique = true)
     private String email;
 
+    // 유저의 자기소개
+    @Column
+    private String self_text;
+
+    // 권한 설정
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
+
 
     public User(String username, String password, String email, UserRoleEnum role) {
         this.username = username;

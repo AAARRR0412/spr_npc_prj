@@ -1,12 +1,16 @@
 package com.spr.socialtv.service;
 
 import com.spr.socialtv.dto.SignupRequestDto;
+import com.spr.socialtv.dto.UserRequestDto;
+import com.spr.socialtv.dto.UserResponseDto;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.repository.UserRepository;
+import com.spr.socialtv.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -65,6 +69,20 @@ public class UserService {
         return map;
     }
 
+
+    @Transactional
+    public UserResponseDto updateProfile(UserDetailsImpl userDetails, UserRequestDto userRequestDto) {
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        user.setUsername(userRequestDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setSelf_text(userRequestDto.getSelf_text());
+
+        userRepository.save(user);
+
+        return new UserResponseDto(user);
+    }
 
 
 }

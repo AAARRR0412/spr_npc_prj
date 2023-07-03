@@ -31,6 +31,16 @@ public class UserDetailsImpl implements UserDetails {
         return user.getUsername();
     }
 
+    public String getSelftext() {
+        return user.getSelf_text();
+    }
+
+    public Long getId() {
+        return user.getId();
+    }
+
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         UserRoleEnum role = user.getRole();
