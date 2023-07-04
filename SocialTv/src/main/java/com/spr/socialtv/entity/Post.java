@@ -19,7 +19,7 @@ public class Post extends Timestamped{
     @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;
+    private Long id;
 
 /*
     @Column(length = 10, nullable = false)
@@ -32,29 +32,29 @@ public class Post extends Timestamped{
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(length = 255, nullable = false)
-    private String postPassword;
+    // @Column(length = 255, nullable = false)
+    // private String postPassword;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @OrderBy("commId asc") // 댓글 정렬
+    @OrderBy("id asc") // 댓글 정렬
     private List<Comment> comments;
 
     // 관리자 사용자 접근권한 때문에 작성자는 업데이트 하지 않음
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable=false)
     private User user; // 작성자
 
 
     @Builder
-    public Post(Long postNo,String title, String content, String postPassword, User user) {
-        this.postId = postNo;
+    public Post(Long id,String title, String content, String postPassword, User user) {
+        this.id = id;
         this.title = title;
         this.content = content;
-        this.postPassword = postPassword;
+        // this.postPassword = postPassword;
         this.user = user;
     }
 
-    public Long getPostNo() {
-        return postId;
+    public Long getId() {
+        return id;
     }
 }

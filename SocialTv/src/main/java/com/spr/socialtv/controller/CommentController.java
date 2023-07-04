@@ -29,10 +29,10 @@ public class CommentController {
     }
 
     // 댓글 수정
-    @PutMapping("{post_id}/comments/{c_id}")
-    public ResponseEntity<CommentResponseDto> updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long c_id, @RequestBody CommentRequestDto requestDto, @PathVariable Long post_id) {
+    @PutMapping("{post_id}/comments/{id}")
+    public ResponseEntity<CommentResponseDto> updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id, @RequestBody CommentRequestDto requestDto, @PathVariable Long post_id) {
         try {
-            CommentResponseDto result = commentService.updateComment(post_id, c_id, requestDto, userDetails.getUser());
+            CommentResponseDto result = commentService.updateComment(post_id, id, requestDto, userDetails.getUser());
             return ResponseEntity.ok().body(result);
         } catch (RejectedExecutionException e) {
             return ResponseEntity.badRequest().build();
@@ -40,10 +40,10 @@ public class CommentController {
     }
 
     // 댓글 삭제
-    @DeleteMapping("{post_id}/comments/{c_id}")
-    public ResponseEntity<ApiResponseDto> deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long c_id, @PathVariable Long post_id) {
+    @DeleteMapping("{post_id}/comments/{id}")
+    public ResponseEntity<ApiResponseDto> deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long id, @PathVariable Long post_id) {
         try {
-            commentService.deleteComment(post_id, c_id, userDetails.getUser());
+            commentService.deleteComment(post_id, id, userDetails.getUser());
             return ResponseEntity.ok().body(new ApiResponseDto("댓글 삭제 성공", HttpStatus.OK.value()));
         } catch (RejectedExecutionException e) {
             return ResponseEntity.badRequest().body(new ApiResponseDto("작성자만 삭제 할 수 있습니다.", HttpStatus.BAD_REQUEST.value()));

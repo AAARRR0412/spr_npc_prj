@@ -9,13 +9,13 @@ import lombok.Setter;
 @Setter
 @Builder
 public class UserProfileDto {
-    private Long userId;
+    private Long id;
     private String username;
     private String email;
     private UserRoleEnum role;
 
     public UserProfileDto(Long id, String username, String email, UserRoleEnum role) {
-        this.userId = id;
+        this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;

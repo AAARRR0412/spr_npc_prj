@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class PostDto {
-    private Long postId;
+    private Long id;
     private String title;
     private String writerName;
     private String content;

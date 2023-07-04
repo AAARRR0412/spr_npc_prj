@@ -26,7 +26,7 @@ public class CommentResponseDto {
 
     // Entity -> Dto
     public CommentResponseDto(Comment comment) {
-        this.content = comment.getComment();
+        this.content = comment.getContent();
         this.username = comment.getUser().getUsername();
         this.createdAt = comment.getCreateDate();
         this.modifiedAt = comment.getUpdateDate();

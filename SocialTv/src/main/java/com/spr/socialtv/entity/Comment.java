@@ -20,18 +20,18 @@ public class Comment extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long commId;
+    private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String comment; // 댓글 내용
+    private String content; // 댓글 내용
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
     // 관리자 사용자 접근권한 때문에 작성자는 업데이트 하지 않음
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable=false)
     private User user; // 작성자
 
@@ -44,8 +44,8 @@ public class Comment extends Timestamped {
     public LocalDateTime getCreateDate() {
         return super.getCreateDate();
     }
-    public void setContent(String comment) {
-        this.comment = comment;
+    public void setContent(String content) {
+        this.content = content;
     }
     public void setPost(Post post) {
         this.post = post;

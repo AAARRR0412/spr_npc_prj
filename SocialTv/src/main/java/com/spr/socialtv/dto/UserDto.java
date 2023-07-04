@@ -15,7 +15,7 @@ public class UserDto {
 
     public UserDto(){}
     public UserDto(Long id, String username, String email, UserRoleEnum role) {
-        this.id = id;
+        this.id= id;
         this.username = username;
         this.email = email;
         this.role = role;

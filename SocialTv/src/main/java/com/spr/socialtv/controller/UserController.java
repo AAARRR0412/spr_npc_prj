@@ -2,11 +2,16 @@ package com.spr.socialtv.controller;
 
 import com.spr.socialtv.dto.*;
 import com.spr.socialtv.service.PostService;
+import com.spr.socialtv.dto.SignupRequestDto;
+import com.spr.socialtv.dto.UserRequestDto;
+import com.spr.socialtv.dto.UserResponseDto;
+import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -60,5 +65,27 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // postman 으로 테스트 할때는 필요없지만 View 를 만든다는 가정하에 필요하다 생각하여 구현함
+    @GetMapping("/get")
+    public UserResponseDto getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        String username = userDetails.getUsername();
+        String password = userDetails.getPassword();
+        String selfText = userDetails.getSelfText();
+        UserResponseDto userResponseDto = new UserResponseDto(username, password, selfText);
+        return userResponseDto;
+
+    }
+
+    @PutMapping("/update")
+    public UserResponseDto updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserRequestDto userRequestDto) {
+
+        UserResponseDto userResponseDto = userService.updateProfile(userDetails, userRequestDto);
+
+        return userResponseDto;
+    }
+
+
 
 }

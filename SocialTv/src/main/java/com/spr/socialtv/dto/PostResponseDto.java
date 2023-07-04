@@ -23,7 +23,7 @@ public class PostResponseDto {
     // 들어온 값으로 필드들을 조회해서 넣어주게 됨
     // 게시글 조회, 생성, 수정에서 사용
     public PostResponseDto(Post post) {
-        this.id = post.getPostId();
+        this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.createdAt = post.getCreateDate();

@@ -4,12 +4,16 @@ import com.spr.socialtv.dto.SignupRequestDto;
 import com.spr.socialtv.dto.UserDto;
 import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.dto.UserProfileRequestDto;
+import com.spr.socialtv.dto.UserRequestDto;
+import com.spr.socialtv.dto.UserResponseDto;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.repository.UserRepository;
+import com.spr.socialtv.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -70,13 +74,27 @@ public class UserService {
 
     public UserProfileDto getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("해당 userId를 찾을 수 없습니다. : " + userId));
+                .orElseThrow(() -> new RuntimeException("해당 Id를 찾을 수 없습니다. : " + userId));
         return convertToUserProfileDto(user);
     }
 
     private UserProfileDto convertToUserProfileDto(User user) {
         return new UserProfileDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
+    @Transactional
+    public UserResponseDto updateProfile(UserDetailsImpl userDetails, UserRequestDto userRequestDto) {
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        user.setUsername(userRequestDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setSelfText(userRequestDto.getSelfText());
+
+        userRepository.save(user);
+
+        return new UserResponseDto(user);
+    }
+
 
     public UserProfileDto updateUserProfile(Long userId, UserProfileRequestDto requestDto) {
         Optional<User> userOptional = userRepository.findById(userId);
