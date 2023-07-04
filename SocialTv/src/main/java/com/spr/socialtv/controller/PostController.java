@@ -18,7 +18,7 @@ public class PostController {
     public PostController(PostService postService) {
         this.postService = postService;
     }
-
+    
     // 게시글 조회
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts() {
