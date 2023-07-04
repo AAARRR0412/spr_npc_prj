@@ -3,10 +3,11 @@ package com.spr.socialtv.controller;
 import com.spr.socialtv.dto.PostDto;
 import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -39,15 +40,6 @@ public class PostController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    /*
-     * 등록
-     * */
-    @PostMapping("/post")
-    public ResponseEntity<PostDto> write(@RequestBody @Valid PostDto postDto, HttpServletRequest request) {
-        ResponseEntity<PostDto> result = postService.savePost(postDto, request);
-        return result;
     }
 
 }

@@ -75,7 +75,7 @@ public class UserService {
     }
 
     private UserProfileDto convertToUserProfileDto(User user) {
-        return new UserProfileDto(user.getUserId(), user.getUsername(), user.getEmail(), user.getRole());
+        return new UserProfileDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
 
     public UserProfileDto updateUserProfile(Long userId, UserProfileRequestDto requestDto) {

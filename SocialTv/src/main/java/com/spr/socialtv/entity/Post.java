@@ -30,7 +30,7 @@ public class Post extends Timestamped{
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String comment;
+    private String content;
 
     @Column(length = 255, nullable = false)
     private String postPassword;
@@ -46,10 +46,10 @@ public class Post extends Timestamped{
 
 
     @Builder
-    public Post(Long postId,String title, String comment, String postPassword, User user) {
-        this.postId = postId;
+    public Post(Long postNo,String title, String content, String postPassword, User user) {
+        this.postId = postNo;
         this.title = title;
-        this.comment = comment;
+        this.content = content;
         this.postPassword = postPassword;
         this.user = user;
     }

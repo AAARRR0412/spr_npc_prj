@@ -13,7 +13,7 @@ import java.util.List;
 public class PostResponseDto {
     private Long id;
     private String title;
-    private String comment;
+    private String content;
     // 생성시간, 수정시간 추가
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -25,7 +25,7 @@ public class PostResponseDto {
     public PostResponseDto(Post post) {
         this.id = post.getPostId();
         this.title = post.getTitle();
-        this.comment = post.getComment();
+        this.content = post.getContent();
         this.createdAt = post.getCreateDate();
         this.modifiedAt = post.getUpdateDate();
         this.username = post.getUser().getUsername();

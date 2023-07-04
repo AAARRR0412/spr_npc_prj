@@ -11,22 +11,22 @@ import java.time.LocalDateTime;
 public class CommentResponseDto {
     private long commentId;
     private long postId;
-    private String comment;
+    private String content;
     private String username;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
     @Builder
-    public CommentResponseDto(long commentId, long postId, String comment, String username) {
+    public CommentResponseDto(long commentId, long postId, String content, String username) {
         this.commentId = commentId;
         this.postId = postId;
-        this.comment = comment;
+        this.content = content;
         this.username = username;
     }
 
     // Entity -> Dto
     public CommentResponseDto(Comment comment) {
-        this.comment = comment.getComment();
+        this.content = comment.getComment();
         this.username = comment.getUser().getUsername();
         this.createdAt = comment.getCreateDate();
         this.modifiedAt = comment.getUpdateDate();

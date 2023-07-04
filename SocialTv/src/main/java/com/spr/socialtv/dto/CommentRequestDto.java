@@ -6,5 +6,5 @@ import lombok.*;
 @Setter
 public class CommentRequestDto {
 
-    private String comment; // 댓글 내용
+    private String content; // 댓글 내용
 }
