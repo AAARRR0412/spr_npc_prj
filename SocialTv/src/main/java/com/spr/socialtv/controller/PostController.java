@@ -42,4 +42,13 @@ public class PostController {
         }
     }
 
+    /*
+     * 등록
+     * */
+    @PostMapping("/post")
+    public ResponseEntity<PostDto> write(@RequestBody @Valid PostDto postDto, HttpServletRequest request) {
+        ResponseEntity<PostDto> result = postService.savePost(postDto, request);
+        return result;
+    }
+
 }
