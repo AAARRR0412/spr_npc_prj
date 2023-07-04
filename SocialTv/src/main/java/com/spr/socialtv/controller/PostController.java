@@ -19,18 +19,21 @@ public class PostController {
         this.postService = postService;
     }
 
+    // 게시글 조회
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts() {
         List<PostDto> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
+    // 게시글 상세 조회
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
         PostDto post = postService.getPostById(postId);
         return ResponseEntity.ok(post);
     }
 
+    // 프로필 조회
     @GetMapping("/{postId}/user-profile")
     public ResponseEntity<UserProfileDto> getUserProfileByPostId(@PathVariable Long postId) {
         UserProfileDto userProfileDto = postService.getUserProfileByPostId(postId);
