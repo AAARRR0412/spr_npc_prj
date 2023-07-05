@@ -1,17 +1,15 @@
 package com.spr.socialtv.controller;
 
 import com.spr.socialtv.dto.*;
-import com.spr.socialtv.service.PostService;
-import com.spr.socialtv.dto.SignupRequestDto;
-import com.spr.socialtv.dto.UserRequestDto;
-import com.spr.socialtv.dto.UserResponseDto;
 import com.spr.socialtv.security.UserDetailsImpl;
+import com.spr.socialtv.service.PostService;
 import com.spr.socialtv.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final String LOGOUT_TRUE = "로그아웃 성공";
 
     /*
      * 회원 가입
@@ -37,6 +36,27 @@ public class UserController {
 
         return map;
     }
+
+    /*
+     * 로그아웃
+     * */
+    @PostMapping("/logout")
+    @ResponseBody
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String requestAccessToken) {
+
+        return userService.logout(requestAccessToken);
+    }
+
+    /*
+     * 재발급
+     * */
+    @PostMapping("/reissue")
+    @ResponseBody
+    public ResponseEntity<?> reissue(@Validated UserRequestDto.Reissue reissue) {
+
+        return userService.reissue(reissue);
+    }
+
 
     @GetMapping("/{userId}/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long userId) {
