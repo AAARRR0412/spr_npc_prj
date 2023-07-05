@@ -4,12 +4,14 @@ import com.spr.socialtv.dto.PostDto;
 import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.jwt.JwtUtil;
+import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.service.FileUploadService;
 import com.spr.socialtv.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,8 +62,8 @@ public class PostController {
     }
 
     // 게시글 만들기
-    @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto, @RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostDto> createPost(@RequestPart("postDto") PostDto postDto, @RequestPart("file") MultipartFile file, HttpServletRequest request) {
         // 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -69,7 +71,7 @@ public class PostController {
         }
 
         // 사용자 정보 확인
-        User user = (User) authentication.getPrincipal();
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
 
         if (file != null && !file.isEmpty()) {
             try {
