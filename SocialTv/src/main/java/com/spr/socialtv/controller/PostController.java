@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,16 +62,24 @@ public class PostController {
     // 게시글 만들기
     @PostMapping
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto, @RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        User user = jwtUtil.checkToken(request);
-        if (user == null) {
+        // 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        try {
-            String imageKey = fileUploadService.uploadFile(file);
-            postDto.setImageKey(imageKey);
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        // 사용자 정보 확인
+        User user = (User) authentication.getPrincipal();
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                String imageKey = fileUploadService.uploadFile(file);
+                postDto.setImageKey(imageKey);
+            } catch (IOException e) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
+
         PostDto resultDto = postService.createPost(postDto, user);
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }

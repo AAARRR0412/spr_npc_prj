@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
@@ -26,20 +28,25 @@ public class FileUploadService {
     public String uploadFile(MultipartFile file) throws IOException {
         File convertedFile = convertMultiPartFileToFile(file);
         String fileName = generateFileName(file);
-        amazonS3.putObject(new PutObjectRequest(bucketName, fileName, convertedFile));
+        String safeFileName = getSafeFileName(fileName);
+        amazonS3.putObject(new PutObjectRequest(bucketName, safeFileName, convertedFile));
         convertedFile.delete();
-        return fileName;
+        return safeFileName;
     }
 
     private File convertMultiPartFileToFile(MultipartFile file) throws IOException {
         File convertedFile = new File(file.getOriginalFilename());
-        FileOutputStream fos = new FileOutputStream(convertedFile);
-        fos.write(file.getBytes());
-        fos.close();
+        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
+            fos.write(file.getBytes());
+        }
         return convertedFile;
     }
 
     private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
+        return new Date().getTime() + "-" + multiPart.getOriginalFilename();
+    }
+
+    private String getSafeFileName(String fileName) {
+        return URLEncoder.encode(fileName, StandardCharsets.UTF_8);
     }
 }
