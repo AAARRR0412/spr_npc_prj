@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>로그인</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="../static/css/signup.css" />
+	</head>
+	<body class="is-preload">
+		<!-- Header -->
+			<header id="header">
+				<a href="http://html5up.net">NETFLIX NEWS FEED</a><h1>로그인</h1>
+				<p>뉴스 피드를 작성하시려면 로그인을 진행해 주세요.<br /></p>
+			</header>
+
+		<!-- Signup Form -->
+			<form id="signup-form" method="post" action="#">
+				<fieldset><input type="text" name="name" id="name" placeholder="이름" /></fieldset>
+				<fieldset><input type="password" name="password" id="password" placeholder="비밀번호" /></fieldset>
+				<input type="submit" value="login" />
+			</form>
+		<!-- Scripts -->
+		<script>
+			$(document).ready(function () {
+				// 토큰 삭제
+				Cookies.remove('Authorization', {path: '/'});
+			});
+
+			const href = location.href;
+			const queryString = href.substring(href.indexOf("?") + 1)
+			if (queryString === 'error') {
+				const errorDiv = document.getElementById('login-failed');
+				errorDiv.style.display = 'block';
+			}
+
+			const host = 'http://' + window.location.host;
+
+			function onLogin() {
+				let username = $('#username').val();
+				let password = $('#password').val();
+
+				$.ajax({
+					type: "POST",
+					url: `/api/user/login`,
+					contentType: "application/json",
+					data: JSON.stringify({username: username, password: password}),
+				})
+						.done(function (res, status, xhr) {
+							const token = xhr.getResponseHeader('Authorization');
+
+							Cookies.set('Authorization', token, {path: '/'})
+
+							$.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+								jqXHR.setRequestHeader('Authorization', token);
+							});
+
+							window.location.href = host;
+						})
+						.fail(function (jqXHR, textStatus) {
+							alert("Login Fail");
+							window.location.href = host + '/api/user/login-page?error'
+						});
+			}
+		</script>
+	</body>
+</html>
