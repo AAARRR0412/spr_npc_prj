@@ -44,6 +44,9 @@ dependencies {
 	implementation 'org.json:json:20230227'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//Redis cache
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

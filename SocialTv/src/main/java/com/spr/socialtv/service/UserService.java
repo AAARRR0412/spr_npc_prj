@@ -1,28 +1,41 @@
 package com.spr.socialtv.service;
 
-import com.spr.socialtv.dto.SignupRequestDto;
-import com.spr.socialtv.dto.UserDto;
-import com.spr.socialtv.dto.UserProfileDto;
-import com.spr.socialtv.dto.UserProfileRequestDto;
-import com.spr.socialtv.dto.UserRequestDto;
-import com.spr.socialtv.dto.UserResponseDto;
+import com.spr.socialtv.dto.*;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
+import com.spr.socialtv.jwt.JwtUtil;
 import com.spr.socialtv.repository.UserRepository;
 import com.spr.socialtv.security.UserDetailsImpl;
+import com.spr.socialtv.util.redis.TokenDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RedisTemplate redisTemplate;
+    private final HttpResponseDto responseDto;
+
+    // Token 식별자
+    public static final String BEARER_PREFIX = "Bearer ";
+
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "7YOc7ZuI64uY7J2YIOq0gOumrOyekCDsvZTrk5zsnoXri4jri6QuIOy3qOq4ieyXkCDso7zsnZjtlZjsl6wg7KO87IS47JqULg==";
@@ -70,6 +83,67 @@ public class UserService {
         map.put("응답코드", 200);
         map.put("메시지", "회원가입을 성공하였습니다.");
         return map;
+    }
+
+    /*
+    *  로그아웃
+    * */
+    public ResponseEntity<?> logout(String requestAccessToken) {
+        if (StringUtils.hasText(requestAccessToken) && requestAccessToken.startsWith(BEARER_PREFIX)) {
+            requestAccessToken =  requestAccessToken.substring(7);
+        }
+
+        // 1. Access Token 검증
+        if (!jwtUtil.validateToken(requestAccessToken)) {
+            return responseDto.fail("잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Access Token 에서 User 정보를 가져옵니다.
+        Authentication authentication = jwtUtil.getAuthentication(requestAccessToken);
+
+        // 3. Redis 에서 해당 User name으로 저장된 Refresh Token 이 있는지 여부를 확인 후 있을 경우 삭제합니다.
+        if (redisTemplate.opsForValue().get("RT:" + authentication.getName()) != null) {
+            // Refresh Token 삭제
+            redisTemplate.delete("RT:" + authentication.getName());
+        }
+
+        // 4. 해당 Access Token 유효시간 가지고 와서 BlackList 로 저장하기
+        Long expiration = jwtUtil.getExpiration(requestAccessToken);
+        redisTemplate.opsForValue()
+                .set(requestAccessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        return responseDto.success("로그아웃 되었습니다.");
+    }
+
+    // 재발급
+    public ResponseEntity<?> reissue(UserRequestDto.Reissue reissue) {
+        // 1. Refresh Token 검증
+        if (!jwtUtil.validateToken(reissue.getRefreshToken())) {
+            return responseDto.fail("Refresh Token 정보가 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Access Token 에서 User email 을 가져옵니다.
+        Authentication authentication = jwtUtil.getAuthentication(reissue.getAccessToken());
+
+        // 3. Redis 에서 User email 을 기반으로 저장된 Refresh Token 값을 가져옵니다.
+        String refreshToken = (String)redisTemplate.opsForValue().get("RT:" + authentication.getName());
+        // (추가) 로그아웃되어 Redis 에 RefreshToken 이 존재하지 않는 경우 처리
+        if(ObjectUtils.isEmpty(refreshToken)) {
+            return responseDto.fail("잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
+        }
+        if(!refreshToken.equals(reissue.getRefreshToken())) {
+            return responseDto.fail("Refresh Token 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 4. 새로운 토큰 생성
+        UserRoleEnum role = ((UserDetailsImpl) authentication.getPrincipal()).getUser().getRole();
+        TokenDto.TokenInfo tokenInfo = jwtUtil.generateToken(authentication, role);
+
+        // 5. RefreshToken Redis 업데이트
+        redisTemplate.opsForValue()
+                .set("RT:" + authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
+
+        return responseDto.success(tokenInfo, "Token 정보가 갱신되었습니다.", HttpStatus.OK);
     }
 
     public UserProfileDto getUserProfile(Long userId) {
