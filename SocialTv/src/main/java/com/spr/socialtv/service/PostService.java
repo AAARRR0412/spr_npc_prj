@@ -21,11 +21,13 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional
     public List<PostDto> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         return convertToDtoList(posts);
     }
 
+    @Transactional
     public PostDto getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post != null) {

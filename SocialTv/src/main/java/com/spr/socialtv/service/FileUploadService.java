@@ -12,7 +12,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class FileUploadService {
@@ -43,7 +46,9 @@ public class FileUploadService {
     }
 
     private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String currentDateTime = LocalDateTime.now().format(dtf);
+        return UUID.randomUUID().toString() + "-" + currentDateTime;
     }
 
     private String getSafeFileName(String fileName) {
