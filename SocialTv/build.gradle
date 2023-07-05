@@ -48,6 +48,9 @@ dependencies {
 
 	//Redis cache
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	//jsoup 의존성 추가
+	implementation 'org.jsoup:jsoup:1.15.3'
 }
 
 tasks.named('test') {

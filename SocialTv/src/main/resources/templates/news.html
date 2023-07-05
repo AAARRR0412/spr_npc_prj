@@ -1,0 +1,13 @@
+<div>
+    <table class= "table">
+        <tr>
+            <th>이미지</th>
+            <th>제목</th>
+        </tr>
+        <tr th:each="news : ${news} ">
+            <td><a th:href="${news.url}"><img th:src="${news.image}"></a></td>
+            <td><a th:href="${news.url}"><span th:text="${news.subject}"></span></a></td>
+            </a>
+        </tr>
+    </table>
+</div>
