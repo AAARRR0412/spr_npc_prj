@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -58,6 +60,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     )
             );
             UserRoleEnum role = ((UserDetailsImpl) authentication.getPrincipal()).getUser().getRole();
+
+            // 사용자 인증 로직을 수행한 후에 이메일 인증 여부를 확인합니다.
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            boolean isEmailVerified = userDetails.getUser().isEmailVerified();
+
+            if (!isEmailVerified) {
+                throw new AuthenticationServiceException("이메일 인증이 완료되지 않았습니다.");
+            }
+
             // 3. 인증 정보를 기반으로 JWT 토큰 생성
             TokenDto.TokenInfo tokenInfo = jwtUtil.generateToken(authentication, role);
 
@@ -95,8 +106,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
      * */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        response.setStatus(400);
-        response.getWriter().println(" 회원을 찾을 수 없습니다." + " (상태코드 : " + response.getStatus() + ")");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        if (failed instanceof AuthenticationServiceException) {
+            response.getWriter().println("이메일 인증이 완료되지 않았습니다.");
+        } else {
+            response.getWriter().println("회원을 찾을 수 없습니다.");
+        }
     }
 
 }

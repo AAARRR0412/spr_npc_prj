@@ -8,9 +8,14 @@ import com.spr.socialtv.repository.UserRepository;
 import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.util.redis.TokenDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,10 +26,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -32,24 +37,40 @@ public class UserService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate redisTemplate;
     private final HttpResponseDto responseDto;
+    private final JavaMailSender mailSender;
+
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
+                       AuthenticationManagerBuilder authenticationManagerBuilder, RedisTemplate redisTemplate,
+                       HttpResponseDto responseDto, JavaMailSender mailSender) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.redisTemplate = redisTemplate;
+        this.responseDto = responseDto;
+        this.mailSender = mailSender;
+    }
 
     // Token 식별자
+
     public static final String BEARER_PREFIX = "Bearer ";
 
 
     // ADMIN_TOKEN
+
     private final String ADMIN_TOKEN = "7YOc7ZuI64uY7J2YIOq0gOumrOyekCDsvZTrk5zsnoXri4jri6QuIOy3qOq4ieyXkCDso7zsnZjtlZjsl6wg7KO87IS47JqULg==";
 
 
-    /*
-     * 회원가입
-     * */
+    // 회원가입
+
     public HashMap<String, Object> signup(SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String password = passwordEncoder.encode(requestDto.getPassword());
         HashMap<String, Object> map = new HashMap<>();
 
         // 회원 중복 확인
+
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
             map.put("응답코드", 401);
@@ -58,6 +79,7 @@ public class UserService {
         }
 
         // email 중복확인
+
         String email = requestDto.getEmail();
         Optional<User> checkEmail = userRepository.findByEmail(email);
         if (checkEmail.isPresent()) {
@@ -67,6 +89,7 @@ public class UserService {
         }
 
         // 사용자 ROLE 확인
+
         UserRoleEnum role = UserRoleEnum.USER;
         if (requestDto.isAdmin()) {
             if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
@@ -78,16 +101,42 @@ public class UserService {
         }
 
         // 사용자 등록
+
         User user = new User(username, password, email, role);
+        String token = UUID.randomUUID().toString();
+        user.setVerificationToken(token);
         userRepository.save(user);
+        sendVerificationEmail(user);
         map.put("응답코드", 200);
-        map.put("메시지", "회원가입을 성공하였습니다.");
+        map.put("메시지", "회원가입을 위한 인증 메일을 발송했습니다.");
         return map;
     }
 
-    /*
-    *  로그아웃
-    * */
+    // 인증 메일 발송
+
+    private void sendVerificationEmail(User user) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("회원 가입 인증 링크");
+        message.setText("회원 가입 인증을 위해서 다음 링크를 클릭해주세요 : "
+                + "http://localhost:8080/user/verify-email?token=" + user.getVerificationToken());
+        mailSender.send(message);
+    }
+
+    // 인증 메일 확인
+
+    public void verifyEmail(String token) {
+        User user = userRepository.findByVerificationToken(token);
+        if (user != null) {
+            user.setEmailVerified(true);
+            userRepository.save(user);
+        } else {
+            throw new AuthenticationServiceException("유효하지 않은 인증 토큰입니다.");
+        }
+    }
+
+    // 로그아웃
+
     public ResponseEntity<?> logout(String requestAccessToken) {
         if (StringUtils.hasText(requestAccessToken) && requestAccessToken.startsWith(BEARER_PREFIX)) {
             requestAccessToken =  requestAccessToken.substring(7);

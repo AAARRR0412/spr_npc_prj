@@ -21,12 +21,14 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    // 게시글 전체 가져오기
     @Transactional
     public List<PostDto> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         return convertToDtoList(posts);
     }
 
+    // 특정 게시글 불러오기
     @Transactional
     public PostDto getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
@@ -36,6 +38,7 @@ public class PostService {
         return null;
     }
 
+    // 게시글 생성 기능
     @Transactional
     public PostDto createPost(PostDto postDto, User user) {
         Post post = convertToPost(postDto, user);
@@ -43,6 +46,7 @@ public class PostService {
         return convertToDto(result);
     }
 
+    // 게시글 수정 기능
     @Transactional
     public PostDto updatePost(Long postId, PostDto postDto, User user) {
         Post post = postRepository.findById(postId)
@@ -56,6 +60,7 @@ public class PostService {
         return convertToDto(updatedPost);
     }
 
+    // 게시글 삭제 기능
     @Transactional
     public void deletePost(Long postId, User user) {
         Post post = postRepository.findById(postId)

@@ -57,6 +57,13 @@ public class UserController {
         return userService.reissue(reissue);
     }
 
+    // 이메일 인증
+
+    @GetMapping("/verify-email")
+    public String verifyEmail(@RequestParam String token) {
+        userService.verifyEmail(token);
+        return "이메일 인증이 완료되었습니다.";
+    }
 
     @GetMapping("/{userId}/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long userId) {

@@ -64,6 +64,7 @@ public class PostController {
     // 게시글 만들기
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<PostDto> createPost(@RequestPart("postDto") PostDto postDto, @RequestPart("file") MultipartFile file, HttpServletRequest request) {
+
         // 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -89,7 +90,16 @@ public class PostController {
     // 게시글 수정
     @PutMapping("/{postId}")
     public ResponseEntity<PostDto> updatePost(@PathVariable Long postId, @RequestBody PostDto postDto, HttpServletRequest request) {
-        User user = jwtUtil.checkToken(request);
+
+        // 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // 사용자 정보 확인
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -100,7 +110,16 @@ public class PostController {
     // 게시글 삭제
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId, HttpServletRequest request) {
-        User user = jwtUtil.checkToken(request);
+        // 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // 사용자 정보 확인
+
+        User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

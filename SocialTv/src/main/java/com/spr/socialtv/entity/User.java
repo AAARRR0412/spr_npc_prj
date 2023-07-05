@@ -40,6 +40,10 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    // 이메일 인증
+    private String verificationToken;
+    private boolean emailVerified;
+
 
     public User(String username, String password, String email, UserRoleEnum role) {
         this.username = username;
