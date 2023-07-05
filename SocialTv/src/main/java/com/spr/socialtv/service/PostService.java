@@ -86,6 +86,7 @@ public class PostService {
                 .content(post.getContent())
                 .writerName(post.getUser().getUsername())
                 .imageKey(post.getImageKey())
+                .user(post.getUser())
                 .createDate(post.getCreateDate())
                 .updateDate(post.getUpdateDate())
                 .build();
