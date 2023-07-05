@@ -1,16 +1,14 @@
 package com.spr.socialtv.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class) /* JPA에게 해당 Entity는 Auditiong 기능을 사용함을 알립니다. */
@@ -44,14 +42,16 @@ public class Post extends Timestamped{
     @JoinColumn(name = "user_id", updatable=false)
     private User user; // 작성자
 
+    @Column(length = 200)
+    private String imageKey;  // AWS S3에서 사용하는 이미지 키를 저장할 필드 추가
 
     @Builder
-    public Post(Long id,String title, String content, String postPassword, User user) {
+    public Post(Long id,String title, String content, User user, String imageKey) {
         this.id = id;
         this.title = title;
         this.content = content;
-        // this.postPassword = postPassword;
         this.user = user;
+        this.imageKey = imageKey;
     }
 
     public Long getId() {

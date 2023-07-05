@@ -4,11 +4,7 @@ import com.spr.socialtv.dto.PostDto;
 import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.entity.Post;
 import com.spr.socialtv.entity.User;
-import com.spr.socialtv.jwt.JwtUtil;
 import com.spr.socialtv.repository.PostRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +17,8 @@ public class PostService {
 
     private final PostRepository postRepository;
 
-    private final JwtUtil jwtUtil;
-
-    public PostService(PostRepository postRepository, JwtUtil jwtUtil) {
+    public PostService(PostRepository postRepository) {
         this.postRepository = postRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     public List<PostDto> getAllPosts() {
@@ -41,6 +34,35 @@ public class PostService {
         return null;
     }
 
+    @Transactional
+    public PostDto createPost(PostDto postDto, User user) {
+        Post post = convertToPost(postDto, user);
+        Post result = postRepository.save(post);
+        return convertToDto(result);
+    }
+
+    @Transactional
+    public PostDto updatePost(Long postId, PostDto postDto, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 POST_ID(" + postId + ") 를 찾을 수 없습니다."));
+        if (!post.getUser().equals(user)) {
+            throw new IllegalArgumentException("이 게시물을 업데이트할 권한이 없습니다."); // TODO : 에러 메시지 + 코드 변경
+        }
+        post.setTitle(postDto.getTitle());
+        post.setContent(postDto.getContent());
+        Post updatedPost = postRepository.save(post);
+        return convertToDto(updatedPost);
+    }
+
+    @Transactional
+    public void deletePost(Long postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 POST_ID(\" + postId + \") 를 찾을 수 없습니다."));
+        if (!post.getUser().equals(user)) {
+            throw new IllegalArgumentException("이 게시물을 업데이트할 권한이 없습니다."); // TODO : 에러 메시지 + 코드 변경
+        }
+        postRepository.delete(post);
+    }
 
     //region
 
@@ -56,6 +78,9 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .writerName(post.getUser().getUsername())
+                .imageKey(post.getImageKey())
+                .createDate(post.getCreateDate())
+                .updateDate(post.getUpdateDate())
                 .build();
     }
 
@@ -81,16 +106,14 @@ public class PostService {
 
     private Post convertToPost(PostDto dto, User user) {
         Post build = Post.builder()
-                //.author(author)
+                .id(dto.getId())
                 .title(dto.getTitle())
                 .content(dto.getContent())
+                .imageKey(dto.getImageKey())
                 .user(user)
                 .build();
         return build;
     }
-
-
-    //endregion
 
     public List<PostDto> getPostsByUserId(Long userId) {
         List<Post> posts = postRepository.findByUserId(userId);
@@ -102,31 +125,4 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("해당 postId를 찾을 수 없습니다. : " + postId));
         return convertToDto(post);
     }
-
-
-
-    /*
-     * 등록
-     * */
-    @Transactional
-    public ResponseEntity<PostDto> savePost(PostDto postDto, HttpServletRequest request) {
-        /*
-         * 토큰 검증.
-         */
-        User user = jwtUtil.checkToken(request);
-        Post result = postRepository.save(convertToPost(postDto, user));
-        PostDto resultDto = convertToDto(result);
-
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        if (result.getId() < 1) {
-            return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-        } else {
-            return new ResponseEntity<>(resultDto, HttpStatus.OK);
-        }
-    }
-
-
-
 }
