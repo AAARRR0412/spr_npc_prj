@@ -45,6 +45,10 @@ public class FileUploadService {
         return convertedFile;
     }
 
+    public void deleteFile(String fileName) {
+        amazonS3.deleteObject(bucketName, fileName);
+    }
+
     private String generateFileName(MultipartFile multiPart) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         String currentDateTime = LocalDateTime.now().format(dtf);

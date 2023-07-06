@@ -19,6 +19,7 @@ public class PostResponseDto {
     private LocalDateTime modifiedAt;
     private List<CommentResponseDto> commentList;
     private String username;
+    private UserProfileDto userProfile;
 
     // 들어온 값으로 필드들을 조회해서 넣어주게 됨
     // 게시글 조회, 생성, 수정에서 사용

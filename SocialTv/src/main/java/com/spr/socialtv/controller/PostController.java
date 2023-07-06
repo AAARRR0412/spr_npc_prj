@@ -1,6 +1,8 @@
 package com.spr.socialtv.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.spr.socialtv.dto.PostDto;
+import com.spr.socialtv.dto.PostResponseDto;
 import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.jwt.JwtUtil;
@@ -27,6 +29,9 @@ public class PostController {
     private final PostService postService;
     private final JwtUtil jwtUtil;
 
+    @Autowired
+    private AmazonS3 amazonS3;
+
     private final FileUploadService fileUploadService;
 
     @Autowired
@@ -45,8 +50,8 @@ public class PostController {
 
     // 게시글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto> getPost(@PathVariable Long postId) {
-        PostDto post = postService.getPostById(postId);
+    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long postId) {
+        PostResponseDto post = postService.getPostById(postId);
         return ResponseEntity.ok(post);
     }
 
@@ -87,10 +92,10 @@ public class PostController {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
-    // 게시글 수정
     @PutMapping("/{postId}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable Long postId, @RequestBody PostDto postDto, HttpServletRequest request) {
-
+    public ResponseEntity<PostDto> updatePost(@PathVariable Long postId,
+                                              @ModelAttribute PostDto postDto,
+                                              @RequestParam(required = false) MultipartFile file) {
         // 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -100,11 +105,7 @@ public class PostController {
         // 사용자 정보 확인
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
 
-        if (user == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        PostDto updatedPostDto = postService.updatePost(postId, postDto, user);
-        return new ResponseEntity<>(updatedPostDto, HttpStatus.OK);
+        return ResponseEntity.ok(postService.updatePost(postId, postDto, file, user));
     }
 
     // 게시글 삭제
