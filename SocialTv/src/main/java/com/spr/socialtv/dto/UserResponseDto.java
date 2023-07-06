@@ -8,20 +8,14 @@ import lombok.Setter;
 @Setter
 public class UserResponseDto {
 
-    private String username;
-    private String password;
     private String selfText;
 
 
-    public UserResponseDto(String username, String password, String selfText) {
-        this.username = username;
-        this.password = password;
+    public UserResponseDto(String selfText) {
         this.selfText = selfText;
     }
 
     public UserResponseDto(User user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
         this.selfText = user.getSelfText();
     }
 }

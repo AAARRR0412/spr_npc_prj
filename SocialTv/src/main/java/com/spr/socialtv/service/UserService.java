@@ -208,11 +208,8 @@ public class UserService {
     public UserResponseDto updateProfile(UserDetailsImpl userDetails, UserRequestDto userRequestDto) {
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-
-        user.setUsername(userRequestDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        
         user.setSelfText(userRequestDto.getSelfText());
-
         userRepository.save(user);
 
         return new UserResponseDto(user);

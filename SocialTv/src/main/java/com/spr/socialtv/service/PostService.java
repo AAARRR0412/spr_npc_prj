@@ -59,20 +59,19 @@ public class PostService {
     }
 
     // 게시글 수정
+    @Transactional
     public PostDto updatePost(Long postId, PostDto postDto, MultipartFile file, User user) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 POST_ID(\" + postId + \") 를 찾을 수 없습니다."));
         if (!post.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("이 게시물을 업데이트할 권한이 없습니다."); // TODO : 에러 메시지 + 코드 변경
         }
-
         // 새로운 파일이 업로드되었다면
         if (file != null && !file.isEmpty()) {
             // 기존의 파일이 있으면 삭제
             if (post.getImageKey() != null && !post.getImageKey().isEmpty()) {
                 fileUploadService.deleteFile(post.getImageKey());
             }
-
             // 새로운 파일 업로드
             String imageKey;
             try {
@@ -80,19 +79,16 @@ public class PostService {
             } catch (IOException e) {
                 throw new IllegalArgumentException("Could not upload file", e);
             }
-
-            postDto.setImageKey(imageKey);
+            post.setImageKey(imageKey);
         }
-
         // Dto의 변경사항을 엔티티에 맵핑
         post.setContent(postDto.getContent()); // content 필드 맵핑 추가
-
-        modelMapper.map(postDto, post);
+        post.setTitle(postDto.getTitle()); // title 필드 맵핑 추가
+        post.setUser(user);
         // 엔티티 저장
         Post updatedPost = postRepository.save(post);
-
         // 업데이트된 엔티티를 Dto로 변환 후 리턴
-        return modelMapper.map(updatedPost, PostDto.class);
+        return convertToDto(updatedPost);
     }
 
 
@@ -122,7 +118,6 @@ public class PostService {
                 .content(post.getContent())
                 .writerName(post.getUser().getUsername())
                 .imageKey(post.getImageKey())
-                .user(post.getUser())
                 .createDate(post.getCreateDate())
                 .updateDate(post.getUpdateDate())
                 .build();

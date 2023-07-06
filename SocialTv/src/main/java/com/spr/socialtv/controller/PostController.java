@@ -92,19 +92,18 @@ public class PostController {
         return new ResponseEntity<>(resultDto, HttpStatus.OK);
     }
 
+    // 게시글 수정
     @PutMapping("/{postId}")
     public ResponseEntity<PostDto> updatePost(@PathVariable Long postId,
-                                              @ModelAttribute PostDto postDto,
-                                              @RequestParam(required = false) MultipartFile file) {
+                                              @RequestPart("postDto") PostDto postDto,
+                                              @RequestPart("file") MultipartFile file) {
         // 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
         // 사용자 정보 확인
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
-
         return ResponseEntity.ok(postService.updatePost(postId, postDto, file, user));
     }
 

@@ -93,23 +93,18 @@ public class UserController {
         }
     }
 
-    // postman 으로 테스트 할때는 필요없지만 View 를 만든다는 가정하에 필요하다 생각하여 구현함
     @GetMapping("/get")
     public UserResponseDto getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        String username = userDetails.getUsername();
-        String password = userDetails.getPassword();
         String selfText = userDetails.getSelfText();
-        UserResponseDto userResponseDto = new UserResponseDto(username, password, selfText);
+        UserResponseDto userResponseDto = new UserResponseDto(selfText);
         return userResponseDto;
 
     }
 
     @PutMapping("/update")
     public UserResponseDto updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserRequestDto userRequestDto) {
-
         UserResponseDto userResponseDto = userService.updateProfile(userDetails, userRequestDto);
-
         return userResponseDto;
     }
 
