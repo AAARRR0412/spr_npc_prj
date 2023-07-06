@@ -42,7 +42,8 @@ public class PostService {
     public PostResponseDto getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post != null) {
-            return new PostResponseDto(post);
+            String imageUrl = "https://news0412.s3.ap-northeast-2.amazonaws.com/" + post.getImageKey();
+            return new PostResponseDto(post.getId(), post.getTitle(), post.getContent(), imageUrl);
         }
         return null;
     }

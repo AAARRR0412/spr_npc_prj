@@ -1,6 +1,7 @@
 package com.spr.socialtv.dto;
 
 import com.spr.socialtv.entity.Post;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,18 +21,31 @@ public class PostResponseDto {
     private List<CommentResponseDto> commentList;
     private String username;
     private UserProfileDto userProfile;
+    private String imageUrl;
 
-    // 들어온 값으로 필드들을 조회해서 넣어주게 됨
-    // 게시글 조회, 생성, 수정에서 사용
-    public PostResponseDto(Post post) {
-        this.id = post.getId();
-        this.title = post.getTitle();
-        this.content = post.getContent();
-        this.createdAt = post.getCreateDate();
-        this.modifiedAt = post.getUpdateDate();
-        this.username = post.getUser().getUsername();
-        this.commentList = post.getComments().stream().map(CommentResponseDto::new)
-                .sorted(Comparator.comparing(CommentResponseDto::getCreatedAt).reversed()) // 작성날짜 내림차순
-                .toList();
+    // 기본 생성자
+    public PostResponseDto() {
+    }
+
+    public PostResponseDto(Long id, String title, String content, String imageUrl) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
+
+    // 생성자
+    public PostResponseDto(Long id, String title, String content, LocalDateTime createdAt,
+                           LocalDateTime modifiedAt, List<CommentResponseDto> commentList,
+                           String username, UserProfileDto userProfile, String imageUrl) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+        this.commentList = commentList;
+        this.username = username;
+        this.userProfile = userProfile;
+        this.imageUrl = imageUrl;
     }
 }

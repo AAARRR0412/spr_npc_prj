@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -71,29 +72,7 @@ public class UserController {
         return ResponseEntity.ok(userProfile);
     }
 
-    @GetMapping("/{userId}/posts")
-    public ResponseEntity<List<PostDto>> getUserPosts(@PathVariable Long userId) {
-        List<PostDto> posts = postService.getPostsByUserId(userId);
-        return ResponseEntity.ok(posts);
-    }
-
-    @GetMapping("/{userId}/posts/{postId}")
-    public ResponseEntity<PostDto> getPostDetails(@PathVariable Long userId, @PathVariable Long postId) {
-        PostDto postDetails = postService.getPostDetails(userId, postId);
-        return ResponseEntity.ok(postDetails);
-    }
-
-    @PutMapping("/users/{userId}/profile")
-    public ResponseEntity<UserProfileDto> updateUserProfile(@PathVariable Long userId, @RequestBody UserProfileRequestDto requestDto) {
-        UserProfileDto updatedProfile = userService.updateUserProfile(userId, requestDto);
-        if (updatedProfile != null) {
-            return ResponseEntity.ok(updatedProfile);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/get")
+    @GetMapping
     public UserResponseDto getProfile(@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         String selfText = userDetails.getSelfText();
@@ -106,6 +85,14 @@ public class UserController {
     public UserResponseDto updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserRequestDto userRequestDto) {
         UserResponseDto userResponseDto = userService.updateProfile(userDetails, userRequestDto);
         return userResponseDto;
+    }
+
+    // 프로필 이미지 업로드 기능
+    @PostMapping("/profile/image")
+    @ResponseBody
+    public ResponseEntity<?> uploadProfileImage(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                @RequestParam("file") MultipartFile file) {
+        return userService.uploadProfileImage(userDetails, file);
     }
 
 

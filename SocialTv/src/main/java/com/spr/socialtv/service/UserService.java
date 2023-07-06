@@ -1,6 +1,7 @@
 package com.spr.socialtv.service;
 
 import com.spr.socialtv.dto.*;
+import com.spr.socialtv.entity.Token;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.jwt.JwtUtil;
@@ -23,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,11 +41,12 @@ public class UserService {
     private final RedisTemplate redisTemplate;
     private final HttpResponseDto responseDto;
     private final JavaMailSender mailSender;
+    private final FileUploadService fileUploadService;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
                        AuthenticationManagerBuilder authenticationManagerBuilder, RedisTemplate redisTemplate,
-                       HttpResponseDto responseDto, JavaMailSender mailSender) {
+                       HttpResponseDto responseDto, JavaMailSender mailSender, FileUploadService fileUploadService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -50,6 +54,7 @@ public class UserService {
         this.redisTemplate = redisTemplate;
         this.responseDto = responseDto;
         this.mailSender = mailSender;
+        this.fileUploadService = fileUploadService;
     }
 
     // Token 식별자
@@ -103,10 +108,13 @@ public class UserService {
         // 사용자 등록
 
         User user = new User(username, password, email, role);
-        String token = UUID.randomUUID().toString();
-        user.setVerificationToken(token);
+        Token verificationToken = new Token();
+        verificationToken.setToken(UUID.randomUUID().toString());
+        verificationToken.setUser(user);
+
+        user.setVerificationToken(verificationToken);
+
         userRepository.save(user);
-        sendVerificationEmail(user);
         map.put("응답코드", 200);
         map.put("메시지", "회원가입을 위한 인증 메일을 발송했습니다.");
         return map;
@@ -215,19 +223,39 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
+    // 프로필 이미지 업로드 수정
+    @Transactional
+    public ResponseEntity<?> uploadProfileImage(UserDetailsImpl userDetails, MultipartFile file) {
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
-    public UserProfileDto updateUserProfile(Long userId, UserProfileRequestDto requestDto) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            // 사용자 정보 업데이트
-            user.setUsername(requestDto.getUsername());
-            user.setEmail(requestDto.getEmail());
-            // TODO: 필요한 다른 정보 업데이트 작업 수행
-
-            User updatedUser = userRepository.save(user);
-            return convertToUserProfileDto(updatedUser);
+        // 이미 프로필 사진이 업로드되어 있는 경우 삭제
+        if (user.getProfileImageKey() != null && !user.getProfileImageKey().isEmpty()) {
+            fileUploadService.deleteFile(user.getProfileImageKey());
         }
-        return null;
+
+        try {
+            String imageKey = fileUploadService.uploadFile(file);
+            user.setProfileImageKey(imageKey);
+            userRepository.save(user);
+            return ResponseEntity.ok("프로필 이미지 업로드 성공");
+        } catch (IOException e) {
+            return responseDto.fail("프로필 이미지 업로드에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 프로필 이미지 삭제
+    public ResponseEntity<?> deleteProfileImage(UserDetailsImpl userDetails) {
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+        // 프로필 사진이 업로드되어 있는 경우 삭제
+        if (user.getProfileImageKey() != null && !user.getProfileImageKey().isEmpty()) {
+            fileUploadService.deleteFile(user.getProfileImageKey());
+            user.setProfileImageKey(null);
+            userRepository.save(user);
+        }
+
+        return ResponseEntity.ok("프로필 이미지 삭제 성공");
     }
 }

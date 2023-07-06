@@ -40,9 +40,15 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
+    @Column(name = "profile_image_key")
+    private String profileImageKey;
+
     // 이메일 인증
-    private String verificationToken;
     private boolean emailVerified;
+
+    // 토큰 저장
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Token verificationToken;
 
 
     public User(String username, String password, String email, UserRoleEnum role) {
