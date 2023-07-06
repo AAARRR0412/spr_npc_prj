@@ -2,6 +2,7 @@ package com.spr.socialtv.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,10 +20,6 @@ public class Post extends Timestamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-/*
-    @Column(length = 10, nullable = false)
-    private String author;
-*/
 
     @Column(length = 100, nullable = false)
     private String title;
@@ -30,8 +27,13 @@ public class Post extends Timestamped{
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    // @Column(length = 255, nullable = false)
-    // private String postPassword;
+    @ColumnDefault("0")
+    @Column(name = "like_count", nullable = false)
+    private Integer likeCount;
+
+    @ColumnDefault("0")
+    @Column(name = "view_count",nullable = false)
+    private Integer viewCount;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @OrderBy("id asc") // 댓글 정렬
