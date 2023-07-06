@@ -18,6 +18,10 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model) {
         List<ProgramDto> programList = programService.getProgramList();
+        // JSONArray jsonList = new JSONArray();
+        //ProgramDao dao = new ProgramDao();
+        //jsonList = dao.ConvertListToJsonArray(programList);
+
         model.addAttribute("programList", programList);
 
         return "index";

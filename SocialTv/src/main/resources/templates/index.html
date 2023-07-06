@@ -8,13 +8,12 @@
 	</head>
 	<body class="is-preload homepage">
 		<div id="page-wrapper">
-
 			<!-- Header -->
 				<div id="header-wrapper">
 					<header id="header" class="container">
 						<!-- Logo -->
 							<div id="logo">
-								<h1><a href="index.html">NETFLIX NEWS FEED</a></h1>
+								<h1><a href="index.html">NETFLIX 신작 NEWS</a></h1>
 							</div>
 
 						<!-- Nav -->
@@ -31,7 +30,25 @@
 			<!-- Features -->
 				<div id="features-wrapper">
 					<div class="container">
-
+						<div class="row">
+							<div th:each="programs : ${programList} " class="col-4 col-12-medium">
+								<!-- Box -->
+								<section class="box feature">
+									<a th:href="${programs.url}" class="image featured" target='_blank'><img th:src="${programs.image}" alt="" /></a>
+									<div class="inner">
+										<header>
+											<h2 th:text="${programs.subject}"></h2>
+										</header>
+										<p th:text="${programs.genre}"></p>
+										<p th:text="${programs.openType}"></p>
+										<p th:text="${programs.releaseDate}"></p>
+										<br>
+										<p th:text="${programs.runningTime}"></p>
+										<p th:text="${programs.madeBy}"></p>
+									</div>
+								</section>
+							</div>
+						</div>
 					</div>
 				</div>
 						</div>
@@ -57,28 +74,6 @@
 	</body>
 	<script>
 		$(document).ready(function () {
-			listing();
 		});
-		program = {
-			id : 0,
-			programType: "",
-			image: "",
-			subject: "",
-			description: "",
-			url: "",
-			genre: "",
-			runningTime: "",
-			madeBy: "",
-			openType: "",
-			releaseDate: ""
-		}
-
-		function listing() {
-			const articleObject = [[${programList}]];
-			$.each(articleObject, function (index, item) {
-				alert(item);
-			});
-			// alert('test');
-		}
 	</script>
 </html>
