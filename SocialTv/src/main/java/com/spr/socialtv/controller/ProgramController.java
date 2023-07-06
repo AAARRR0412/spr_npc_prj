@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
+
+// 크롤링 데이터 테스트용도 컨트롤러
 @Controller
 public class ProgramController {
 
@@ -19,7 +21,7 @@ public class ProgramController {
 
     @GetMapping("/news")
     public String news(Model model) throws Exception{
-        List<Program> newsList = programService.getNewsDatas();
+        List<Program> newsList = programService.getProgramData();
         model.addAttribute("news", newsList);
 
         return "news";

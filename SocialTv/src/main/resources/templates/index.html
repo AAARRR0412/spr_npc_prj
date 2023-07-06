@@ -31,55 +31,7 @@
 			<!-- Features -->
 				<div id="features-wrapper">
 					<div class="container">
-						<div class="row">
-							<div class="col-4 col-12-medium">
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured"><img src="/images/pic8.jpeg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2>title</h2>
-											</header>
-											<p>content</p>
-											<br>
-											<p>username</p>
-											<p>create_date</p>
-										</div>
-									</section>
-							</div>
-							<div class="col-4 col-12-medium">
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured"><img src="/images/pic9.jpeg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2>title</h2>
-											</header>
-											<p>content</p>
-											<br>
-											<p>username</p>
-											<p>create_date</p>
-										</div>
-									</section>
-							</div>
-							<div class="col-4 col-12-medium">
 
-								<!-- Box -->
-									<section class="box feature">
-										<a href="#" class="image featured"><img src="/images/pic10.jpeg" alt="" /></a>
-										<div class="inner">
-											<header>
-												<h2>title</h2>
-											</header>
-											<p>content </p>
-											<br>
-											<p>username</p>
-											<p>create_date</p>
-										</div>
-									</section>
-
-							</div>
-						</div>
 					</div>
 				</div>
 						</div>
@@ -95,15 +47,38 @@
 				</div>
 
 			</div>
-
 		<!-- Scripts -->
-
-			<script src="/js/jquery.min.js"></script>
-			<script src="/js/jquery.dropotron.min.js"></script>
-			<script src="/js/browser.min.js"></script>
-			<script src="/js/breakpoints.min.js"></script>
-			<script src="/js/util.js"></script>
-			<script src="/js/main.js"></script>
-
+		<script src="/js/jquery.min.js"></script>
+		<script src="/js/jquery.dropotron.min.js"></script>
+		<script src="/js/browser.min.js"></script>
+		<script src="/js/breakpoints.min.js"></script>
+		<script src="/js/util.js"></script>
+		<script src="/js/main.js"></script>
 	</body>
+	<script>
+		$(document).ready(function () {
+			listing();
+		});
+		program = {
+			id : 0,
+			programType: "",
+			image: "",
+			subject: "",
+			description: "",
+			url: "",
+			genre: "",
+			runningTime: "",
+			madeBy: "",
+			openType: "",
+			releaseDate: ""
+		}
+
+		function listing() {
+			const articleObject = [[${programList}]];
+			$.each(articleObject, function (index, item) {
+				alert(item);
+			});
+			// alert('test');
+		}
+	</script>
 </html>

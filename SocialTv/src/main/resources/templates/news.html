@@ -1,3 +1,4 @@
+<!-- 테스트 페이지 크롤링 데이터  -->
 <div>
     <table class= "table">
         <tr>
@@ -7,7 +8,17 @@
         <tr th:each="news : ${news} ">
             <td><a th:href="${news.url}"><img th:src="${news.image}"></a></td>
             <td><a th:href="${news.url}"><span th:text="${news.subject}"></span></a></td>
-            </a>
+            <td><span th:text="${news.openType}"></span></td>
+            <td><span th:text="${news.releaseDate}"></span></td>
+            <td>
+                <span th:text="${news.genre}"></span></td>
+            </td>
+            <td>
+                <span th:text="${news.runningTime}"></span></td>
+            </td>
+            <td>
+                <span th:text="${news.madeBy}"></span></td>
+            </td>
         </tr>
     </table>
 </div>
