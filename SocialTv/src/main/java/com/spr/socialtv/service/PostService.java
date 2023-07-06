@@ -50,6 +50,9 @@ public class PostService {
     // 게시글 생성 기능
     @Transactional
     public PostDto createPost(PostDto postDto, User user) {
+        // 최초 좋아요, 조회수는 0
+        postDto.setLikeCount(0);
+        postDto.setViewCount(0);
         Post post = convertToPost(postDto, user);
         Post result = postRepository.save(post);
         return convertToDto(result);
@@ -152,6 +155,8 @@ public class PostService {
                 .content(dto.getContent())
                 .imageKey(dto.getImageKey())
                 .user(user)
+                .likeCount(dto.getLikeCount())
+                .viewCount(dto.getViewCount())
                 .build();
         return build;
     }

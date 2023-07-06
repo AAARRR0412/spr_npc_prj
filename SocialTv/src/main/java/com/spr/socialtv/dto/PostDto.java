@@ -19,4 +19,7 @@ public class PostDto {
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     private String imageKey;
+
+    private Integer likeCount;
+    private Integer viewCount;
 }
