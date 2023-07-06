@@ -8,7 +8,6 @@ import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.service.FileUploadService;
 import com.spr.socialtv.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/posts")

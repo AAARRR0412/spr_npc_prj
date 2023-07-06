@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
+/**
+ * 메인페이지
+ * */
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
 
     private final ProgramService programService;
 
+    // 메인 페이지
     @GetMapping("/")
     public String home(Model model) {
         List<ProgramDto> programList = programService.getProgramList();

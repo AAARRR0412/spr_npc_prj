@@ -10,19 +10,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 좋아요
+ * */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/post/Like")
+@RequestMapping("/posts/like")
 public class LikeController {
     private final LikeService likeService;
 
+    // 좋아요
     @PostMapping
     public ResponseEntity<ApiResponseDto> insert(@RequestBody @Valid LikeRequestDTO likeRequestDTO) throws Exception {
-        likeService.insert(likeRequestDTO);
-        return ResponseEntity.ok().body(new ApiResponseDto("성공", HttpStatus.OK.value()));
+        ResponseEntity<ApiResponseDto> result = likeService.insert(likeRequestDTO);
+        return result;
     }
 
+    // 좋아요 취소
     @DeleteMapping
     public ResponseEntity<ApiResponseDto> delete(@RequestBody @Valid LikeRequestDTO likeRequestDTO) {
         likeService.delete(likeRequestDTO);

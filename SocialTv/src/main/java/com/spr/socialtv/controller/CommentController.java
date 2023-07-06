@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.RejectedExecutionException;
 
+/**
+* 댓글
+* */
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor

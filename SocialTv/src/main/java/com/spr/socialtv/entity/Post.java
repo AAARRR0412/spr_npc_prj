@@ -48,12 +48,14 @@ public class Post extends Timestamped{
     private String imageKey;  // AWS S3에서 사용하는 이미지 키를 저장할 필드 추가
 
     @Builder
-    public Post(Long id,String title, String content, User user, String imageKey) {
+    public Post(Long id,String title, String content, User user, String imageKey, int likeCount, int viewCount) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.user = user;
         this.imageKey = imageKey;
+        this.likeCount = likeCount;
+        this.viewCount = viewCount;
     }
 
     public Long getId() {
