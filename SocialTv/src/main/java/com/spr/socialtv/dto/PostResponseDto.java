@@ -23,4 +23,5 @@ public class PostResponseDto {
     private String username;
     private String userProfile;
     private String imageUrl;
+    private String profileImageUrl;
 }

@@ -6,8 +6,6 @@ import com.spr.socialtv.dto.UserProfileDto;
 import com.spr.socialtv.entity.Post;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.repository.PostRepository;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -133,6 +131,7 @@ public class PostService {
                 .username(post.getUser().getUsername())
                 .userProfile(post.getUser().getSelfText())
                 .imageUrl("https://news0412.s3.ap-northeast-2.amazonaws.com/" + post.getImageKey())
+                .profileImageUrl("https://news0412.s3.ap-northeast-2.amazonaws.com/" + post.getUser().getProfileImageKey())
                 .build();
     }
 
