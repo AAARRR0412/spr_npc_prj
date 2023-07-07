@@ -1,12 +1,16 @@
 package com.spr.socialtv.controller;
 
-import com.spr.socialtv.dto.*;
+import com.spr.socialtv.dto.SignupRequestDto;
+import com.spr.socialtv.dto.UserProfileDto;
+import com.spr.socialtv.dto.UserRequestDto;
+import com.spr.socialtv.dto.UserResponseDto;
 import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.service.PostService;
 import com.spr.socialtv.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -14,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
-import java.util.List;
 
 @Slf4j
 @RestController  // 주소가 아닌 문자열로 그대로 리턴 가능함
@@ -82,9 +85,12 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public UserResponseDto updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserRequestDto userRequestDto) {
-        UserResponseDto userResponseDto = userService.updateProfile(userDetails, userRequestDto);
-        return userResponseDto;
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserRequestDto userRequestDto) {
+        if (userDetails == null) {
+            return new  ResponseEntity<String>("로그인을 진행 후 실행 해 주세요.", HttpStatus.BAD_REQUEST);
+        }
+        ResponseEntity<?> result = userService.updateProfile(userDetails, userRequestDto);
+        return result;
     }
 
     // 프로필 이미지 업로드 기능

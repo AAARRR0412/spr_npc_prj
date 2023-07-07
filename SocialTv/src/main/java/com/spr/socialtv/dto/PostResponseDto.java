@@ -1,14 +1,9 @@
 package com.spr.socialtv.dto;
 
-import com.spr.socialtv.entity.Comment;
-import com.spr.socialtv.entity.Post;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -19,9 +14,10 @@ public class PostResponseDto {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-    private List<Comment> commentList;
+    private List<CommentResponseDto> commentList;
     private String username;
     private String userProfile;
     private String imageUrl;
     private String profileImageUrl;
+    private String boardTitle;
 }

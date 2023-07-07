@@ -49,10 +49,11 @@ public class PostController {
     }
 
     // 게시글 상세 조회
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable Long postId) {
-        PostResponseDto post = postService.getPostById(postId);
-        return ResponseEntity.ok(post);
+    @GetMapping("/post/{postId}")
+    public PostResponseDto getPost(@PathVariable Long postId) {
+        PostResponseDto result  = postService.getPostById(postId);
+
+        return result;
     }
 
     // 프로필 조회
@@ -109,11 +110,11 @@ public class PostController {
 
     // 게시글 삭제
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId, HttpServletRequest request) {
+    public ResponseEntity<String> deletePost(@PathVariable Long postId, HttpServletRequest request) {
         // 인증된 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("권한이 없습니다.", HttpStatus.UNAUTHORIZED);
         }
 
         // 사용자 정보 확인
@@ -121,10 +122,10 @@ public class PostController {
         User user = ((UserDetailsImpl) authentication.getPrincipal()).getUser();
 
         if (user == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("권한이 없습니다.", HttpStatus.UNAUTHORIZED);
         }
         postService.deletePost(postId, user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("삭제완료하였습니다.", HttpStatus.OK);
     }
 
 }

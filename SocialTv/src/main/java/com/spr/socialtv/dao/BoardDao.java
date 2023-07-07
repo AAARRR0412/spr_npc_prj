@@ -9,9 +9,8 @@ public class BoardDao {
     // entity -> dto 변환
     public BoardDto ConvertToDto (Board board) {
         return BoardDto.builder()
-                .id(board.getId())
                 .title(board.getTitle())
-                .order(board.getOrder())
+                .listOrder(board.getListOrder())
                 .build();
     }
 
@@ -19,7 +18,7 @@ public class BoardDao {
         Board board = Board.builder()
                 .id(dto.getId())
                 .title(dto.getTitle())
-                .order(dto.getOrder())
+                .listOrder(dto.getListOrder())
                 .build();
         return board;
     }

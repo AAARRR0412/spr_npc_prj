@@ -9,20 +9,18 @@ import com.spr.socialtv.repository.TokenRepository;
 import com.spr.socialtv.repository.UserRepository;
 import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.util.redis.TokenDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +36,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+
     private final JwtUtil jwtUtil;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate redisTemplate;
@@ -221,15 +220,18 @@ public class UserService {
     private UserProfileDto convertToUserProfileDto(User user) {
         return new UserProfileDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
-    @Transactional
-    public UserResponseDto updateProfile(UserDetailsImpl userDetails, UserRequestDto userRequestDto) {
-        User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
-        
-        user.setSelfText(userRequestDto.getSelfText());
-        userRepository.save(user);
 
-        return new UserResponseDto(user);
+    @Transactional
+    public ResponseEntity<?> updateProfile(UserDetailsImpl userDetails, UserRequestDto userRequestDto) {
+        Optional<User> opUser = userRepository.findById(userDetails.getId());
+        User user = opUser.get();
+        if (!passwordEncoder.matches(userRequestDto.getPassword(), user.getPassword())) {
+            return new ResponseEntity<>("패스워드정보가 틀립니다. 다시 입력해주세요.", HttpStatus.BAD_REQUEST);
+        } else {
+            user.setSelfText(userRequestDto.getSelfText());
+            userRepository.save(user);
+        }
+        return new ResponseEntity<>(new UserResponseDto(user), HttpStatus.OK) ;
     }
 
     // 프로필 이미지 업로드 수정

@@ -6,14 +6,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 public class BoardDto {
     private Long id;
     private String title;
-    private int order;
+    private int listOrder;
 
-    public BoardDto(String title, int order) {
+    @Builder
+    public BoardDto(String title, int listOrder) {
         this.title = title;
-        this.order = order;
+        this.listOrder = listOrder;
     }
 }

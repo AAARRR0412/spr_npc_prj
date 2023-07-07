@@ -22,13 +22,13 @@ public class Board {
 
     //순서
     @Column 
-    private int order;
+    private int listOrder;
 
     @Builder
-    public Board(Long id,String title, int order) {
+    public Board(Long id,String title, int listOrder) {
         this.id = id;
         this.title = title;
-        this.order = order;
+        this.listOrder = listOrder;
     }
 
 }

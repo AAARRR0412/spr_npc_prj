@@ -20,28 +20,15 @@ public class BoardService {
     @Transactional
     public BoardDto createBoard(BoardDto boardDto) {
         BoardDao dao = new BoardDao();
-        Optional<Board> prevBoard = findBoard(boardDto.getTitle());
-        if (!prevBoard.isPresent()) {
-            Board board = dao.convertToBoard(boardDto);
-            Board result = boardRepository.save(board);
-            return dao.ConvertToDto(result);
-        } else {
-            return boardDto;
-        }
+        Board board = dao.convertToBoard(boardDto);
+        Board result = boardRepository.save(board);
+        return dao.ConvertToDto(result);
     }
 
-    // 해당 게시판이 DB에 존재하는지 확인
-    private Board findBoard(Long id) {
-        return boardRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("해당 게시판이 존재하지 않습니다.")
-        );
-    }
 
     // 해당 게시판이 DB에 존재하는지 확인(이름)
-    private Optional<Board> findBoard(String title) {
-        return Optional.ofNullable(boardRepository.findByTitle(title).orElseThrow(() ->
-                new IllegalArgumentException("해당 게시판이 존재하지 않습니다.")
-        ));
+    public Optional<Board> findBoard(String title) {
+        return boardRepository.findByTitle(title);
     }
 
 }
