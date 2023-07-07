@@ -3,6 +3,8 @@ package com.spr.socialtv.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -43,6 +45,13 @@ public class Post extends Timestamped{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", updatable=false)
     private User user; // 작성자
+
+
+    // 게시판명
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Board board;
 
     @Column(length = 200)
     private String imageKey;  // AWS S3에서 사용하는 이미지 키를 저장할 필드 추가
