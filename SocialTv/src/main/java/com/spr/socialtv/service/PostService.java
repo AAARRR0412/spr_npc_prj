@@ -22,12 +22,10 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final FileUploadService fileUploadService;
-    private final ModelMapper modelMapper;
 
-    public PostService(PostRepository postRepository, FileUploadService fileUploadService, ModelMapper modelMapper) {
+    public PostService(PostRepository postRepository, FileUploadService fileUploadService) {
         this.postRepository = postRepository;
         this.fileUploadService = fileUploadService;
-        this.modelMapper = modelMapper;
     }
 
     // 게시글 전체 가져오기
@@ -43,7 +41,7 @@ public class PostService {
         Post post = postRepository.findById(postId).orElse(null);
         if (post != null) {
             String imageUrl = "https://news0412.s3.ap-northeast-2.amazonaws.com/" + post.getImageKey();
-            return new PostResponseDto(post.getId(), post.getTitle(), post.getContent(), imageUrl);
+            return convertToPostResponseDto(post);
         }
         return null;
     }
@@ -124,6 +122,19 @@ public class PostService {
                 .build();
     }
 
+    private PostResponseDto convertToPostResponseDto(Post post) {
+        return PostResponseDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .createdAt(post.getCreateDate())
+                .modifiedAt(post.getUpdateDate())
+                .commentList(post.getComments())
+                .username(post.getUser().getUsername())
+                .userProfile(post.getUser().getSelfText())
+                .imageUrl("https://news0412.s3.ap-northeast-2.amazonaws.com/" + post.getImageKey())
+                .build();
+    }
 
     public UserProfileDto getUserProfileByPostId(Long postId) {
         Optional<Post> postOptional = postRepository.findById(postId);

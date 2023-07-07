@@ -35,7 +35,7 @@ public class Post extends Timestamped{
     @Column(name = "view_count",nullable = false)
     private Integer viewCount;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @OrderBy("id asc") // 댓글 정렬
     private List<Comment> comments;
 

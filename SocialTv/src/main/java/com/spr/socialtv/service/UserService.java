@@ -5,6 +5,7 @@ import com.spr.socialtv.entity.Token;
 import com.spr.socialtv.entity.User;
 import com.spr.socialtv.entity.UserRoleEnum;
 import com.spr.socialtv.jwt.JwtUtil;
+import com.spr.socialtv.repository.TokenRepository;
 import com.spr.socialtv.repository.UserRepository;
 import com.spr.socialtv.security.UserDetailsImpl;
 import com.spr.socialtv.util.redis.TokenDto;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -46,7 +48,7 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
                        AuthenticationManagerBuilder authenticationManagerBuilder, RedisTemplate redisTemplate,
-                       HttpResponseDto responseDto, JavaMailSender mailSender, FileUploadService fileUploadService) {
+                       HttpResponseDto responseDto, JavaMailSender mailSender, FileUploadService fileUploadService, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -55,6 +57,7 @@ public class UserService {
         this.responseDto = responseDto;
         this.mailSender = mailSender;
         this.fileUploadService = fileUploadService;
+        this.tokenRepository = tokenRepository;
     }
 
     // Token 식별자
@@ -115,6 +118,10 @@ public class UserService {
         user.setVerificationToken(verificationToken);
 
         userRepository.save(user);
+
+        // 이메일 발송
+        sendVerificationEmail(user);
+
         map.put("응답코드", 200);
         map.put("메시지", "회원가입을 위한 인증 메일을 발송했습니다.");
         return map;
@@ -127,15 +134,17 @@ public class UserService {
         message.setTo(user.getEmail());
         message.setSubject("회원 가입 인증 링크");
         message.setText("회원 가입 인증을 위해서 다음 링크를 클릭해주세요 : "
-                + "http://localhost:8080/user/verify-email?token=" + user.getVerificationToken());
+                + "http://localhost:8080/user/verify-email?token=" + user.getVerificationToken().getToken());
         mailSender.send(message);
     }
 
     // 인증 메일 확인
 
+    @Transactional
     public void verifyEmail(String token) {
-        User user = userRepository.findByVerificationToken(token);
-        if (user != null) {
+        Token tokenEntity = tokenRepository.findByToken(token);
+        if (tokenEntity != null) {
+            User user = tokenEntity.getUser();
             user.setEmailVerified(true);
             userRepository.save(user);
         } else {
