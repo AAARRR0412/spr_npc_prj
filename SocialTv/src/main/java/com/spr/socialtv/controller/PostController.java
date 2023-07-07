@@ -49,7 +49,7 @@ public class PostController {
     }
 
     // 게시글 상세 조회
-    @GetMapping("/post/{postId}")
+    @GetMapping("/{postId}")
     public PostResponseDto getPost(@PathVariable Long postId) {
         PostResponseDto result  = postService.getPostById(postId);
 
